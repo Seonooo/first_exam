@@ -13,6 +13,7 @@ export class BoardsService {
         private boardRepository : BoardRepository,
     ){}
 
+    // 아이디를 통해서 게시물 가져오기
     async getBoardById(id: number): Promise <Board> {
         const found = await this.boardRepository.findOne(id);
         if(!found){
@@ -20,6 +21,13 @@ export class BoardsService {
         }
         return found;
     }
+
+    // 게시물 생성하기
+    createBoard(createboardDto: CreateboardDto) :Promise<Board>{
+        return this.boardRepository.createBoard(createboardDto);
+    }
+
+
     // // 모든 board가져오기
     // getAllBoards(): Board[] {   // 리턴값 타입설정
     //     return this.boards;

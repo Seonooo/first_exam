@@ -23,9 +23,16 @@ export class BoardsController {
     // }
 
 
+    // 아이디를 통해서 게시물 가져오기
     @Get('/:id')
     getBoardById(@Param('id') id:number) : Promise<Board>{
         return this.boardsService.getBoardById(id);
+    }
+
+    @Post()
+    @UsePipes(ValidationPipe)
+    createBoard(@Body() CreateboardDto: CreateboardDto) : Promise<Board>{
+        return this.boardsService.createBoard(CreateboardDto);
     }
 
     // @Get('/:id')
