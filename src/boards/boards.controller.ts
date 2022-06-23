@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UsePipes, ValidationPipe } from '@nestjs/common';
 import { BoardStatusValidationPipe } from 'src/pipes/board-status-validation.pipe';
 import {  BoardStatus } from './board-status.enum'
 import { Board } from './board.entity';
@@ -33,6 +33,11 @@ export class BoardsController {
     @UsePipes(ValidationPipe)
     createBoard(@Body() CreateboardDto: CreateboardDto) : Promise<Board>{
         return this.boardsService.createBoard(CreateboardDto);
+    }
+
+    @Delete('/:id')
+    deleteBoard(@Param('id', ParseIntPipe) id):Promise<void>{
+        return this.boardsService.deleteBoard(id);
     }
 
     // @Get('/:id')

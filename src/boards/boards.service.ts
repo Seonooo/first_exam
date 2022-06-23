@@ -6,6 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { BoardRepository } from './board.repository';
 import { Board } from './board.entity';
 
+
 @Injectable()
 export class BoardsService {
     constructor(
@@ -25,6 +26,15 @@ export class BoardsService {
     // 게시물 생성하기
     createBoard(createboardDto: CreateboardDto) :Promise<Board>{
         return this.boardRepository.createBoard(createboardDto);
+    }
+
+    // 게시물 삭제하기
+    async deleteBoard(id: number): Promise<void>{
+        const result = await this.boardRepository.delete(id);
+        // 아이디가 없는경우
+        if(result.affected === 0){
+            throw new NotFoundException(`Can't find Board with id ${id}`);
+        }
     }
 
 
