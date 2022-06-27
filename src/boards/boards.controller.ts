@@ -29,15 +29,32 @@ export class BoardsController {
         return this.boardsService.getBoardById(id);
     }
 
+    // 게시물 등록하기
     @Post()
     @UsePipes(ValidationPipe)
     createBoard(@Body() CreateboardDto: CreateboardDto) : Promise<Board>{
         return this.boardsService.createBoard(CreateboardDto);
     }
 
+    // 게시물 삭제하기
     @Delete('/:id')
     deleteBoard(@Param('id', ParseIntPipe) id):Promise<void>{
         return this.boardsService.deleteBoard(id);
+    }
+
+    // 게시물 수정하기
+    @Patch('/:id/status')
+    updateBoardStatus(
+        @Param('id') id : number,
+        @Body('status', BoardStatusValidationPipe) status : BoardStatus
+    ){
+        return this.boardsService.updateBoardStatus(id, status);
+    }
+
+    // 모든 게시물 가져오기
+    @Get()
+    getAllBoards(): Promise<Board[]>{
+        return this.boardsService.getAllBoards();
     }
 
     // @Get('/:id')

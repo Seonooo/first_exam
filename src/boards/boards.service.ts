@@ -32,9 +32,25 @@ export class BoardsService {
     async deleteBoard(id: number): Promise<void>{
         const result = await this.boardRepository.delete(id);
         // 아이디가 없는경우
+        // affected => 영향을 받은 개수
         if(result.affected === 0){
             throw new NotFoundException(`Can't find Board with id ${id}`);
         }
+    }
+
+    // 게시물 수정하기
+    async updateBoardStatus(id:number, status: BoardStatus): Promise<Board>{
+        const board = await this.getBoardById(id);
+
+        board.status = status;
+        await this.boardRepository.save(board);
+
+        return board;
+    }
+
+    // 모든 게시물 가져오기
+    async getAllBoards(): Promise<Board[]>{
+        return this.boardRepository.find();
     }
 
 
