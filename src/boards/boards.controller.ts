@@ -1,4 +1,7 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { GetUser } from 'src/auth/get-user.decorator';
+import { User } from 'src/auth/user.entity';
 import { BoardStatusValidationPipe } from 'src/pipes/board-status-validation.pipe';
 import {  BoardStatus } from './board-status.enum'
 import { Board } from './board.entity';
@@ -6,22 +9,17 @@ import { BoardsService } from './boards.service';
 import { CreateboardDto } from './dto/create-board.dto';
 
 @Controller('boards')
+@UseGuards(AuthGuard())
 export class BoardsController {
     constructor(private boardsService: BoardsService){}
 
-    // @Get('/')
-    // getAllBoard() : Board[]{  // 리턴값 타입설정
-    //     return this.boardsService.getAllBoards();
-    // }
-
-    // @Post()
-    // @UsePipes(ValidationPipe)   // 파이프를 통해서 유효성체크
-    // createBoard(
-    //     @Body() CreateboardDto : CreateboardDto,
-    // ) : Board {
-    //     return this.boardsService.createBoard(CreateboardDto);
-    // }
-
+    // 해당 유저의 게시물만 가져오기
+    @Get()
+    getAllBoards(
+        @GetUser() user: User,
+    ): Promise<Board[]>{
+        return this.boardsService.getAllBoards(user);
+    }
 
     // 아이디를 통해서 게시물 가져오기
     @Get('/:id')
@@ -32,14 +30,17 @@ export class BoardsController {
     // 게시물 등록하기
     @Post()
     @UsePipes(ValidationPipe)
-    createBoard(@Body() CreateboardDto: CreateboardDto) : Promise<Board>{
-        return this.boardsService.createBoard(CreateboardDto);
+    createBoard(@Body() CreateboardDto: CreateboardDto,
+    @GetUser() user: User) : Promise<Board>{
+        return this.boardsService.createBoard(CreateboardDto, user);
     }
 
     // 게시물 삭제하기
     @Delete('/:id')
-    deleteBoard(@Param('id', ParseIntPipe) id):Promise<void>{
-        return this.boardsService.deleteBoard(id);
+    deleteBoard(@Param('id', ParseIntPipe) id,
+    @GetUser() user:User,
+    ):Promise<void>{
+        return this.boardsService.deleteBoard(id, user);
     }
 
     // 게시물 수정하기
@@ -52,10 +53,10 @@ export class BoardsController {
     }
 
     // 모든 게시물 가져오기
-    @Get()
-    getAllBoards(): Promise<Board[]>{
-        return this.boardsService.getAllBoards();
-    }
+    // @Get()
+    // getAllBoards(): Promise<Board[]>{
+    //     return this.boardsService.getAllBoards();
+    // }
 
     // @Get('/:id')
     // getBoardById(@Param('id') id : string) : Board{

@@ -1,10 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {  Injectable, NotFoundException } from '@nestjs/common';
 import {  BoardStatus } from './board-status.enum';
 import {v1 as uuid} from 'uuid';    // uuid의 v1버전을 uuid로 사용
 import { CreateboardDto } from './dto/create-board.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BoardRepository } from './board.repository';
 import { Board } from './board.entity';
+import { User } from 'src/auth/user.entity';
 
 
 @Injectable()
@@ -13,6 +14,8 @@ export class BoardsService {
         @InjectRepository(BoardRepository) 
         private boardRepository : BoardRepository,
     ){}
+
+    
 
     // 아이디를 통해서 게시물 가져오기
     async getBoardById(id: number): Promise <Board> {
@@ -24,13 +27,13 @@ export class BoardsService {
     }
 
     // 게시물 생성하기
-    createBoard(createboardDto: CreateboardDto) :Promise<Board>{
-        return this.boardRepository.createBoard(createboardDto);
+    createBoard(createboardDto: CreateboardDto, user: User) :Promise<Board>{
+        return this.boardRepository.createBoard(createboardDto, user);
     }
 
     // 게시물 삭제하기
-    async deleteBoard(id: number): Promise<void>{
-        const result = await this.boardRepository.delete(id);
+    async deleteBoard(id: number, user:User): Promise<void>{
+        const result = await this.boardRepository.delete({id, user});
         // 아이디가 없는경우
         // affected => 영향을 받은 개수
         if(result.affected === 0){
@@ -49,8 +52,13 @@ export class BoardsService {
     }
 
     // 모든 게시물 가져오기
-    async getAllBoards(): Promise<Board[]>{
-        return this.boardRepository.find();
+    async getAllBoards(user: User): Promise<Board[]>{
+        const query = this.boardRepository.createQueryBuilder('board');
+
+        query.where('board.userId = :userId', {userId: user.id});
+
+        const boards = await query.getMany();
+        return boards;
     }
 
 
